@@ -401,13 +401,13 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:22px 0}
 
   <hr class="rule">
   <h3>Подання</h3>
-  <p class="lead">Скопіюйте журнал і вставте його у відповідь на завдання в Moodle. Файл потрібен лише як запасна копія.</p>
+  <p class="lead">Скопіюйте журнал і вставте його у відповідь на завдання в Moodle. Якщо завдання приймає лише файл, збережіть журнал файлом і прикріпіть його. Той самий файл відновлює записи, якщо ви зміните телефон.</p>
   <div class="actions">
     <button type="button" class="btn-primary" id="btnCopy">Скопіювати для Moodle</button>
-    <button type="button" class="btn-quiet" id="btnSave">Зберегти файл</button>
+    <button type="button" class="btn-quiet" id="btnSave">Зберегти файлом</button>
     <button type="button" class="btn-quiet" id="btnLoad">Відновити з файлу</button>
   </div>
-  <input type="file" id="fileIn" accept=".json,application/json" hidden>
+  <input type="file" id="fileIn" accept=".txt,.json,text/plain,application/json" hidden>
 </section>
 
 <!-- ДОВІДКА -->
@@ -561,10 +561,17 @@ hr.rule{border:0;border-top:1px solid var(--line);margin:22px 0}
 "use strict";
 var KEY="suspilne-m2-zhurnal-v1";
 var TYPES={"1":"Напрямок","2":"Зворотний зв'язок","3":"Розвиток"};
+var MARK="--- службові дані, не редагувати ---";
 var state={people:[],entries:[],saved:null};
 var missMode=false;
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function osib(n){
+  var d=n%10,h=n%100;
+  if(d===1&&h!==11)return n+" особа";
+  if(d>=2&&d<=4&&(h<12||h>14))return n+" особи";
+  return n+" осіб";
+}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
 
@@ -700,7 +707,7 @@ function asText(){
   var L=[];
   L.push("ЖУРНАЛ РОЗМОВ · Модуль 2");
   L.push("");
-  L.push("РОЗКЛАДКА ("+state.people.length+" осіб)");
+  L.push("РОЗКЛАДКА ("+osib(state.people.length)+")");
   if(!state.people.length)L.push("  не заповнено");
   state.people.forEach(function(p){
     L.push("  "+p.name+" · "+TYPES[p.type]+" · "+p.freq+
@@ -789,8 +796,8 @@ function fallbackCopy(txt,done){
 }
 
 document.getElementById("btnSave").addEventListener("click",function(){
-  var data=JSON.stringify(state,null,2);
-  var name="zhurnal-rozmov.json";
+  var data=asText()+"\n\n"+MARK+"\n"+JSON.stringify(state);
+  var name="zhurnal-rozmov.txt";
   if(window.claude&&typeof window.claude.use==="function"){
     window.claude.use("downloads").then(function(d){
       if(d&&d.save){d.save({filename:name,data:data}).then(function(){toast("Файл збережено.");},
@@ -801,7 +808,7 @@ document.getElementById("btnSave").addEventListener("click",function(){
 });
 function blobSave(data,name){
   try{
-    var b=new Blob([data],{type:"application/json"});
+    var b=new Blob([data],{type:"text/plain;charset=utf-8"});
     var u=URL.createObjectURL(b);
     var a=document.createElement("a");
     a.href=u;a.download=name;document.body.appendChild(a);a.click();
@@ -819,7 +826,10 @@ document.getElementById("fileIn").addEventListener("change",function(ev){
   var r=new FileReader();
   r.onload=function(){
     try{
-      var o=JSON.parse(r.result);
+      var raw=String(r.result);
+      var i=raw.indexOf(MARK);
+      if(i>-1)raw=raw.slice(i+MARK.length);
+      var o=JSON.parse(raw.trim());
       state.people=Array.isArray(o.people)?o.people:[];
       state.entries=Array.isArray(o.entries)?o.entries:[];
       save();paintMap();paintWho();paintLog();
