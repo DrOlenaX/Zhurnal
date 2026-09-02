@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Журнал розмов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F3F5F7;
+  --surface:#FFFFFF;
+  --surface-2:#EAEEF2;
+  --ink:#171E2A;
+  --ink-muted:#5A6577;
+  --ink-faint:#8B94A3;
+  --line:#D6DCE4;
+  --line-strong:#B9C3CF;
+  --accent:#2F4A6B;
+  --accent-soft:#E3EAF2;
+  --mark:#9C5A16;
+  --mark-soft:#F6EADB;
+  --done:#3A6350;
+  --done-soft:#E1EDE6;
+  --focus:#2F4A6B;
+  --shadow:0 1px 2px rgba(23,30,42,.06),0 4px 12px rgba(23,30,42,.05);
+  --r:10px;
+  --f-display:"Literata",Georgia,"Times New Roman",serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10151C;
+    --surface:#182029;
+    --surface-2:#212B36;
+    --ink:#E4E9EF;
+    --ink-muted:#9AA5B4;
+    --ink-faint:#6E7988;
+    --line:#2C3743;
+    --line-strong:#3D4A59;
+    --accent:#82A6CD;
+    --accent-soft:#1E2C3C;
+    --mark:#D89A52;
+    --mark-soft:#2E2418;
+    --done:#71A88A;
+    --done-soft:#1A2620;
+    --focus:#82A6CD;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10151C;
+  --surface:#182029;
+  --surface-2:#212B36;
+  --ink:#E4E9EF;
+  --ink-muted:#9AA5B4;
+  --ink-faint:#6E7988;
+  --line:#2C3743;
+  --line-strong:#3D4A59;
+  --accent:#82A6CD;
+  --accent-soft:#1E2C3C;
+  --mark:#D89A52;
+  --mark-soft:#2E2418;
+  --done:#71A88A;
+  --done-soft:#1A2620;
+  --focus:#82A6CD;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:calc(74px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+
+/* header */
+header{
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+  position:sticky;top:0;z-index:20;
+}
+.hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 0 12px}
+.hd h1{
+  font-family:var(--f-display);font-weight:600;font-size:20px;line-height:1.2;
+  margin:0;letter-spacing:-.01em;text-wrap:balance;
+}
+.hd .sub{font-size:12px;color:var(--ink-faint);margin-top:3px}
+.stamp{
+  font-size:11px;color:var(--ink-faint);white-space:nowrap;
+  font-variant-numeric:tabular-nums;text-align:right;flex:none;
+}
+.stamp b{display:block;font-weight:500;color:var(--done)}
+
+/* deadline strip */
+.deadline{
+  background:var(--mark-soft);border:1px solid var(--line);
+  border-radius:var(--r);padding:11px 13px;margin:14px 0;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.deadline .dot{width:8px;height:8px;border-radius:50%;background:var(--mark);flex:none;margin-top:7px}
+.deadline p{margin:0;font-size:13.5px;color:var(--ink)}
+.deadline strong{font-weight:600}
+
+section.pane{display:none;padding:4px 0 24px}
+section.pane.on{display:block}
+
+h2{
+  font-family:var(--f-display);font-weight:600;font-size:17px;margin:26px 0 8px;
+  letter-spacing:-.005em;text-wrap:balance;
+}
+h2:first-of-type{margin-top:18px}
+h3{font-size:14px;font-weight:600;margin:18px 0 6px;color:var(--ink)}
+p.lead{color:var(--ink-muted);font-size:14px;margin:0 0 14px;max-width:62ch}
+
+.eyebrow{
+  font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:600;margin:0 0 6px;
+}
+
+/* cards + rows */
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.card + .card{margin-top:10px}
+.row{
+  display:grid;grid-template-columns:1fr auto;gap:4px 12px;
+  padding:12px 13px;border-bottom:1px solid var(--line);align-items:start;
+}
+.row:last-child{border-bottom:0}
+.row .nm{font-weight:600;font-size:15px;line-height:1.3}
+.row .meta{font-size:12.5px;color:var(--ink-muted);font-variant-numeric:tabular-nums}
+.row .side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+
+.chip{
+  display:inline-block;font-size:11px;font-weight:600;letter-spacing:.02em;
+  padding:3px 8px;border-radius:100px;white-space:nowrap;
+  background:var(--accent-soft);color:var(--accent);border:1px solid transparent;
+}
+.chip.t2{background:var(--done-soft);color:var(--done)}
+.chip.t3{background:var(--mark-soft);color:var(--mark)}
+.chip.ghost{background:transparent;color:var(--ink-faint);border-color:var(--line-strong)}
+
+.strip{width:3px;align-self:stretch}
+
+/* journal entries */
+.entry{display:grid;grid-template-columns:3px 1fr;gap:0;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:0}
+.entry .bar{background:var(--done)}
+.entry.miss .bar{background:var(--mark)}
+.entry .body{padding:11px 13px}
+.entry .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.entry .who{font-weight:600;font-size:14.5px}
+.entry .dt{font-size:12px;color:var(--ink-faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.entry .why{
+  margin:5px 0 0;font-size:13.5px;color:var(--ink);
+  border-left:2px solid var(--line-strong);padding-left:9px;
+}
+.entry .tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+
+/* forms */
+form{display:grid;gap:11px}
+label{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink-muted)}
+input[type="text"],input[type="date"],select,textarea{
+  font-family:inherit;font-size:16px;line-height:1.4;color:var(--ink);
+  background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;
+  padding:10px 11px;width:100%;appearance:none;-webkit-appearance:none;
+}
+select{
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-muted) 50%),linear-gradient(135deg,var(--ink-muted) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px;
+}
+textarea{resize:vertical;min-height:62px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.tab:focus-visible{
+  outline:2px solid var(--focus);outline-offset:2px;
+}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+@media (max-width:400px){.two{grid-template-columns:1fr}}
+
+button{
+  font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;
+  border-radius:8px;padding:11px 15px;border:1px solid transparent;
+}
+.btn-primary{background:var(--accent);color:#FFFFFF;border-color:var(--accent)}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .btn-primary{color:#0F1922}
+}
+:root[data-theme="dark"] .btn-primary{color:#0F1922}
+.btn-quiet{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
+.btn-danger{background:var(--mark-soft);color:var(--mark);border-color:var(--mark)}
+.btn-link{background:none;border:none;color:var(--accent);font-size:13px;padding:4px 0;font-weight:600}
+.btn-del{background:none;border:none;color:var(--ink-faint);font-size:12px;padding:2px 0;font-weight:500}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:6px}
+.actions button{flex:1 1 auto;min-width:130px}
+
+.seg{display:flex;gap:0;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.seg button{
+  flex:1;border:0;border-radius:0;background:var(--surface);color:var(--ink-muted);
+  font-size:14px;padding:11px 8px;
+}
+.seg button + button{border-left:1px solid var(--line-strong)}
+.seg button[aria-pressed="true"]{background:var(--done-soft);color:var(--done)}
+.seg button.m[aria-pressed="true"]{background:var(--mark-soft);color:var(--mark)}
+
+/* tally */
+.tally{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 4px}
+.tally > div{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:11px 12px;text-align:left;
+}
+.tally .n{font-family:var(--f-display);font-size:23px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.tally .k{font-size:10px;color:var(--ink-faint);margin-top:4px;letter-spacing:.03em;line-height:1.25;min-height:2.5em}
+.tally .miss .n{color:var(--mark)}
+.tally .did .n{color:var(--done)}
+
+.empty{
+  border:1px dashed var(--line-strong);border-radius:var(--r);
+  padding:18px 14px;color:var(--ink-muted);font-size:13.5px;text-align:center;
+}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-top:9px;overflow:hidden}
+details summary{
+  cursor:pointer;padding:12px 13px;font-weight:600;font-size:14.5px;list-style:none;
+  display:flex;justify-content:space-between;gap:10px;align-items:center;
+}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"+";color:var(--ink-faint);font-weight:400;font-size:18px}
+details[open] summary::after{content:"–"}
+details .in{padding:0 13px 14px;font-size:14px;color:var(--ink)}
+details .in p{margin:0 0 9px;max-width:62ch}
+details .in ul{margin:0 0 9px;padding-left:19px}
+details .in li{margin-bottom:5px}
+details .in .src{font-size:12px;color:var(--ink-faint);margin-top:10px}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0 0 9px}
+.steps li{counter-increment:s;position:relative;padding-left:27px;margin-bottom:7px}
+.steps li::before{
+  content:counter(s);position:absolute;left:0;top:1px;
+  width:19px;height:19px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+  font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;
+}
+.say{
+  font-family:var(--f-display);font-size:15px;line-height:1.45;
+  border-left:3px solid var(--accent);padding:2px 0 2px 12px;margin:9px 0;color:var(--ink);
+}
+
+/* tab bar */
+nav.tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+  display:flex;
+}
+.tab{
+  flex:1;background:none;border:0;border-radius:0;padding:11px 4px 12px;
+  font-size:12px;font-weight:600;color:var(--ink-faint);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.tab[aria-selected="true"]{color:var(--accent)}
+.tab .ic{width:19px;height:19px;display:block}
+.tab .ic path,.tab .ic rect,.tab .ic line{stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tab .badge{
+  font-size:10px;font-weight:600;color:var(--surface);background:var(--mark);
+  border-radius:100px;padding:0 5px;position:absolute;transform:translate(14px,-4px);
+}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));
+  transform:translateX(-50%) translateY(8px);
+  background:var(--ink);color:var(--paper);font-size:13.5px;font-weight:500;
+  padding:10px 16px;border-radius:100px;z-index:40;
+  opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;
+  max-width:calc(100% - 32px);text-align:center;
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+
+hr.rule{border:0;border-top:1px solid var(--line);margin:22px 0}
+.foot{font-size:12px;color:var(--ink-faint);margin-top:18px;max-width:62ch}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <div>
+      <h1>Журнал розмов</h1>
+      <div class="sub">Модуль 2 · Регулярні 1:1</div>
+    </div>
+    <div class="stamp" id="stamp">не збережено</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- РОЗКЛАДКА -->
+<section class="pane on" id="pane-map" role="tabpanel" aria-labelledby="tab-map">
+  <h2>Розкладка підрозділу</h2>
+  <p class="lead">Усі, хто підпорядкований вам безпосередньо. Для кожного оберіть, про що з ним розмова і як часто. Пишіть ініціали або роль, не повні імена: цей аркуш лишається у вашому телефоні.</p>
+
+  <div class="tally" id="mapTally"></div>
+
+  <div id="mapList"></div>
+
+  <h3>Додати людину</h3>
+  <div class="card" style="padding:13px">
+    <form id="mapForm">
+      <label>Хто
+        <input type="text" id="mName" placeholder="Напр. О. К., випусковий редактор" required>
+      </label>
+      <div class="two">
+        <label>Про що розмова
+          <select id="mType">
+            <option value="1">Напрямок</option>
+            <option value="2">Зворотний зв'язок</option>
+            <option value="3">Розвиток</option>
+          </select>
+        </label>
+        <label>Як часто
+          <select id="mFreq">
+            <option>щотижня</option>
+            <option>раз на два тижні</option>
+            <option selected>раз на місяць</option>
+            <option>раз на квартал</option>
+            <option>раз на півроку</option>
+          </select>
+        </label>
+      </div>
+      <div class="two">
+        <label>Хто веде
+          <select id="mOwner">
+            <option>я</option>
+            <option>безпосередній керівник</option>
+          </select>
+        </label>
+        <label>Остання розмова
+          <input type="date" id="mLast">
+        </label>
+      </div>
+      <div class="actions"><button type="submit" class="btn-primary">Додати в розкладку</button></div>
+    </form>
+  </div>
+
+  <div class="foot">Розкладка не складається раз і назавжди. Перегляньте її, коли зміниться склад команди, і не рідше ніж раз на квартал.</div>
+</section>
+
+<!-- ЖУРНАЛ -->
+<section class="pane" id="pane-log" role="tabpanel" aria-labelledby="tab-log">
+  <div class="deadline">
+    <span class="dot"></span>
+    <p>Надіслати журнал у <strong>Moodle до 18:00, п'ятниця 18 вересня</strong>. MasterMind 22 вересня будується на тому, що ви тут запишете. Рядок «що завадило» потрібніший за рядок «відбулося».</p>
+  </div>
+
+  <h2>Два тижні практики</h2>
+  <div class="tally" id="logTally"></div>
+
+  <h3>Записати розмову</h3>
+  <div class="card" style="padding:13px">
+    <form id="logForm">
+      <label>З ким
+        <select id="lWho"></select>
+      </label>
+      <div class="two">
+        <label>Коли мала відбутися
+          <input type="date" id="lDate" required>
+        </label>
+        <label>Про що
+          <select id="lType">
+            <option value="1">Напрямок</option>
+            <option value="2">Зворотний зв'язок</option>
+            <option value="3">Розвиток</option>
+          </select>
+        </label>
+      </div>
+      <label>Що сталося
+        <div class="seg" role="group">
+          <button type="button" id="segDid" aria-pressed="true">Відбулася</button>
+          <button type="button" class="m" id="segMiss" aria-pressed="false">Не відбулася</button>
+        </div>
+      </label>
+      <label id="whyWrap" hidden>Що завадило
+        <textarea id="lWhy" placeholder="Один рядок. Конкретно: «ефір посунули, сів о 19:40 і поїхав», а не «не було часу»."></textarea>
+      </label>
+      <label id="raisedWrap">Що підлеглий підняв сам
+        <textarea id="lRaised" placeholder="Один рядок. Якщо нічого не підняв, так і напишіть."></textarea>
+      </label>
+      <div class="actions"><button type="submit" class="btn-primary">Записати</button></div>
+    </form>
+  </div>
+
+  <h3>Записи</h3>
+  <div id="logList"></div>
+
+  <hr class="rule">
+  <h3>Подання</h3>
+  <p class="lead">Збережіть журнал файлом і прикріпіть цей файл до завдання в Moodle до 18:00 у п'ятницю 18 вересня.</p>
+  <div class="card" style="padding:13px;margin-bottom:10px">
+    <label>Ваше імʼя і прізвище: вони потраплять у назву файлу
+      <input type="text" id="who" placeholder="Напр. Олена Хоменко">
+    </label>
+  </div>
+  <div class="actions">
+    <button type="button" class="btn-primary" id="btnSave">Зберегти журнал для Moodle</button>
+  </div>
+</section>
+
+<!-- ДОВІДКА -->
+<section class="pane" id="pane-ref" role="tabpanel" aria-labelledby="tab-ref">
+  <h2>Довідка</h2>
+  <p class="lead">Те, що потрібно під рукою у момент розмови. Читати цілком не треба, відкривайте потрібне.</p>
+
+  <p class="eyebrow">Три типи розмов</p>
+
+  <details>
+    <summary>Напрямок</summary>
+    <div class="in">
+      <p>Про поточну роботу: що рухається, що застрягло, де людині потрібне ваше рішення або ресурс. Прохання про допомогу, прохання зняти задачу, прохання поговорити із суміжним департаментом, це і є ця розмова, а не відхилення від неї.</p>
+      <p><strong>Не плутати зі статусом.</strong> У статусі ви питаєте, що зроблено, і чуєте те саме, що бачите в таск-трекері. Тут підлеглий приносить те, що його блокує, і виходить з рішенням.</p>
+      <p><strong>Готуєте:</strong> нічого, крім часу. Порядок денний приносить він.<br>
+      <strong>Починаєте з:</strong> «З чим прийшов?»<br>
+      <strong>Лишаєте на письмі:</strong> один рядок, хто що робить до наступної розмови.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Зворотний зв'язок</summary>
+    <div class="in">
+      <p>Про те, як людина працює, коли вам є що сказати. Дві половини: похвала і критика. Не змішуйте їх в одній зустрічі, «бутерброд» не працює: людина запам'ятовує перше й останнє і не чує середини.</p>
+      <p><strong>Готуєте:</strong> два-три конкретні випадки з датами.<br>
+      <strong>Починаєте з:</strong> факту, не з оцінки.<br>
+      <strong>Лишаєте на письмі:</strong> що саме зміниться і до якого числа.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Розвиток</summary>
+    <div class="in">
+      <p>Про те, куди людина рухається і чого їй для цього бракує. Сюди ж підтримка: розмова про те, що людині важко, і що ви можете зняти. Ця розмова не має права закінчитися вимогою, інакше наступного разу вам скажуть неправду.</p>
+      <p><strong>Готуєте:</strong> що ви бачите як її сильну сторону і що як зону росту.<br>
+      <strong>Починаєте з:</strong> «Куди ти хочеш далі?»<br>
+      <strong>Лишаєте на письмі:</strong> один крок, який робить вона, і один, який робите ви.</p>
+    </div>
+  </details>
+
+  <p class="eyebrow" style="margin-top:26px">Як побудувати фразу</p>
+
+  <details>
+    <summary>Факт, вплив, запит</summary>
+    <div class="in">
+      <p>Конструкція, яка тримає розмову на роботі й не дає їй з'їхати на людину.</p>
+      <ol class="steps">
+        <li><strong>Ситуація.</strong> Коли й де. «У вівторок, на верстці вечірнього випуску».</li>
+        <li><strong>Поведінка.</strong> Що саме сталося, без тлумачення. «Матеріал прийшов о 18:40, за двадцять хвилин до ефіру».</li>
+        <li><strong>Вплив.</strong> Що з цього вийшло. «Випускова не встигла перевірити прізвище, і ми дали спростування».</li>
+        <li><strong>Запит.</strong> Чого ви просите і до якого числа.</li>
+      </ol>
+      <p>Перевірка перед розмовою: у перших двох кроках не має бути жодного слова, яке не побачила б камера. «Систематично», «недбало», «не переймається» це вже четвертий крок, і сказаний зарано він робить із розмови вирок.</p>
+      <p class="src">Джерело конструкції: модель SBI, Center for Creative Leadership.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Коли розмова зламалася</summary>
+    <div class="in">
+      <p>Людина замовкла або підвищила тон. І те, і те означає одне: вона перестала почуватися в безпеці. Аргументи тут не працюють, бо сперечається вона вже не з фактом.</p>
+      <ol class="steps">
+        <li><strong>Зупиніться.</strong> Не додавайте доказів. Пауза на сім секунд.</li>
+        <li><strong>Скажіть, чого ви не кажете.</strong> Спершу заперечення, потім твердження.</li>
+        <li><strong>Поверніть суть її словами.</strong> Одним реченням, без «але».</li>
+        <li><strong>Поверніться до факту.</strong> Тільки після того, як вона знову говорить.</li>
+      </ol>
+      <p class="say">«Я не кажу, що ти погано працюєш, і не збираюся тебе виштовхувати. Я кажу, що верстка приходить за пів години до ефіру.»</p>
+      <p class="src">Джерело: «Crucial Conversations», Паттерсон, Ґренні, Макміллан, Світцлер.</p>
+    </div>
+  </details>
+
+  <p class="eyebrow" style="margin-top:26px">З внутрішнього тренінгу Суспільного</p>
+
+  <details>
+    <summary>Мотивуючий зворотний зв'язок</summary>
+    <div class="in">
+      <ol class="steps">
+        <li>Опишіть конкретно, що саме зроблено добре.</li>
+        <li>Опишіть свої емоції.</li>
+        <li>Аргументуйте своє схвалення.</li>
+        <li>Вислухайте, як колега реагує.</li>
+        <li>Подякуйте.</li>
+      </ol>
+      <p>Ознаки неякісної похвали: хвалить особистість замість дії, перебільшує внесок, тримається загальних фраз, звучить монологом, трапляється тоді, коли є настрій.</p>
+      <p class="src">Тренінг «Зворотний зв'язок як інвестиційний інструмент», Суспільне.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Коригуючий зворотний зв'язок</summary>
+    <div class="in">
+      <ol class="steps">
+        <li>Погодьте ціль зустрічі. Створіть доброзичливу атмосферу.</li>
+        <li>Спільно проаналізуйте, що сталося. Невиконані зобов'язання, некоректні дії.</li>
+        <li>Погодьте оцінку: «Який зв'язок ти бачиш між тим, що ти зробив, і результатом?»</li>
+        <li>Спільно складіть план дій.</li>
+        <li>Оцініть зустріч разом.</li>
+      </ol>
+      <p>Якісна критика містить факти, а не їх тлумачення, критикує вчинок, а не особистість, обходиться без «завжди» і «ніколи», закінчується домовленістю і трапляється регулярно.</p>
+      <p class="src">Тренінг Суспільного, за методикою Олександра Ратнера, Skill for Me.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Розвиваючий зворотний зв'язок</summary>
+    <div class="in">
+      <p>Три частини приблизно рівні за часом.</p>
+      <ul>
+        <li><strong>Успіхи.</strong> Здобутки, прогрес, сильні сторони, досвід.</li>
+        <li><strong>Уроки.</strong> Зони розвитку, слабкі сторони, чого бракує.</li>
+        <li><strong>Зміни.</strong> Рішення й дії, сфокусовані на конкретній зміні, а не на результаті.</li>
+      </ul>
+      <p class="src">Тренінг «Зворотний зв'язок як інвестиційний інструмент», Суспільне.</p>
+    </div>
+  </details>
+
+  <p class="eyebrow" style="margin-top:26px">Щоб журнал не загубився</p>
+  <details>
+    <summary>Додати на початковий екран</summary>
+    <div class="in">
+      <p>Зробіть це <strong>до того, як заповнювати</strong>. Сторінка тоді відкривається як застосунок, а записи не зникають через тиждень.</p>
+      <p><strong>iPhone.</strong> Відкрийте цю адресу саме в Safari, навіть якщо ваш звичний браузер інший. Кнопка «Поділитися» внизу екрана, далі «На початковий екран». Після цього заходьте лише з іконки.</p>
+      <p>На iPhone у Safari, у Chrome і в застосунку з іконки три окремі сховища. Якщо заповнити журнал у браузері, а потім додати іконку, ви побачите порожній журнал. Нічого не зникло, просто це інша комірка.</p>
+      <p><strong>Android.</strong> Chrome, три крапки вгорі праворуч, далі «Додати на головний екран».</p>
+      <p>Записи зберігаються у вашому телефоні. Нікуди самі не надсилаються.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Один пристрій, і чому це важливо</summary>
+    <div class="in">
+      <p><strong>Оберіть один пристрій і ведіть журнал лише на ньому.</strong> Найкраще телефон: розмови трапляються не за робочим столом.</p>
+      <p>Записи зберігаються всередині того браузера, у якому ви їх внесли. Ноутбук і телефон це два окремі сховища, і вони не обмінюються нічим. Якщо заповнити частину на комп'ютері, на телефоні ви побачите порожній журнал. Нічого не зникло, просто це інше місце.</p>
+      <p>Так зроблено навмисно: у системі немає ані сервера, ані облікових записів, тож ваші записи не йдуть нікуди, зокрема й на ваш другий пристрій.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Перенести журнал на інший пристрій</summary>
+    <div class="in">
+      <p>На старому пристрої збережіть журнал файлом на вкладці «Журнал». Перешліть файл собі. На новому відкрийте журнал, додайте на початковий екран і натисніть кнопку нижче.</p>
+      <p>Відновлення нічого не стирає: воно додає з файлу тільки те, чого тут ще немає.</p>
+      <div class="actions"><button type="button" class="btn-quiet" id="btnLoad">Відновити з файлу</button></div>
+      <input type="file" id="fileIn" accept=".txt,.json,text/plain,application/json" hidden>
+    </div>
+  </details>
+
+  <details>
+    <summary>Почати з чистого аркуша</summary>
+    <div class="in">
+      <p>Стирає розкладку і всі записи в цьому телефоні. Відновити після цього можна лише з файлу, збереженого на вкладці «Журнал».</p>
+      <div class="actions"><button type="button" class="btn-quiet" id="btnWipe">Очистити все</button></div>
+      <p class="src">Версія сторінки 6, 2 вересня 2026.</p>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<nav class="tabs" role="tablist">
+  <button class="tab" id="tab-map" role="tab" aria-selected="true" aria-controls="pane-map" data-p="map">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/><path d="M2.5 6h.01M2.5 12h.01M2.5 18h.01"/></svg>
+    Розкладка
+  </button>
+  <button class="tab" id="tab-log" role="tab" aria-selected="false" aria-controls="pane-log" data-p="log">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 9h8M8 13h8M8 17h4"/></svg>
+    Журнал
+  </button>
+  <button class="tab" id="tab-ref" role="tab" aria-selected="false" aria-controls="pane-ref" data-p="ref">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2 2 0 0 1 6 3.5h6v17H6a2 2 0 0 0-2 2z"/><path d="M20 5.5a2 2 0 0 0-2-2h-6v17h6a2 2 0 0 1 2 2z"/></svg>
+    Довідка
+  </button>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+var KEY="suspilne-m2-zhurnal-v1";
+var TYPES={"1":"Напрямок","2":"Зворотний зв'язок","3":"Розвиток"};
+var MARK="--- службові дані, не редагувати ---";
+var state={who:"",people:[],entries:[],saved:null};
+var missMode=false;
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+var TR={"а":"a","б":"b","в":"v","г":"h","ґ":"g","д":"d","е":"e","є":"ie","ж":"zh",
+"з":"z","и":"y","і":"i","ї":"i","й":"i","к":"k","л":"l","м":"m","н":"n","о":"o",
+"п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch",
+"ш":"sh","щ":"shch","ь":"","ю":"iu","я":"ia","'":"","\u2019":"","\u02bc":""};
+var TR_FIRST={"є":"ye","ї":"yi","й":"y","ю":"yu","я":"ya"};
+function translit(s){
+  var words=String(s||"").toLowerCase().split(/\s+/).filter(Boolean);
+  var out=words.map(function(w){
+    w=w.replace(/зг/g,"zgh");
+    var r="";
+    for(var i=0;i<w.length;i++){
+      var c=w[i];
+      var m=(i===0&&TR_FIRST[c])?TR_FIRST[c]:(c in TR?TR[c]:c);
+      r+=m;
+    }
+    return r;
+  }).join("-");
+  return out.replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"").slice(0,40);
+}
+function osib(n){
+  var d=n%10,h=n%100;
+  if(d===1&&h!==11)return n+" особа";
+  if(d>=2&&d<=4&&(h<12||h>14))return n+" особи";
+  return n+" осіб";
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(raw){var o=JSON.parse(raw);
+      if(o&&typeof o==="object"){
+        state.people=Array.isArray(o.people)?o.people:[];
+        state.entries=Array.isArray(o.entries)?o.entries:[];
+        state.who=typeof o.who==="string"?o.who:"";
+        state.saved=o.saved||null;
+      }}
+  }catch(e){/* приватний режим або заблоковане сховище */}
+}
+function save(){
+  state.saved=new Date().toISOString();
+  try{localStorage.setItem(KEY,JSON.stringify(state));}
+  catch(e){
+    document.getElementById("stamp").innerHTML="браузер не зберігає<br>скопіюйте журнал";
+    return;
+  }
+  paintStamp();
+}
+function paintStamp(){
+  var el=document.getElementById("stamp");
+  if(!state.saved){el.textContent="ще порожньо";return;}
+  var d=new Date(state.saved);
+  var p=function(n){return n<10?"0"+n:""+n;};
+  el.innerHTML="<b>збережено "+p(d.getHours())+":"+p(d.getMinutes())+"</b>"+
+    p(d.getDate())+"."+p(d.getMonth()+1);
+}
+function fdate(s){
+  if(!s)return "";
+  var d=new Date(s+"T00:00:00");
+  if(isNaN(d))return s;
+  var p=function(n){return n<10?"0"+n:""+n;};
+  return p(d.getDate())+"."+p(d.getMonth()+1);
+}
+function toast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("on");
+  clearTimeout(t._x);t._x=setTimeout(function(){t.classList.remove("on");},2200);
+}
+
+/* ---------- розкладка ---------- */
+function paintMap(){
+  var list=document.getElementById("mapList");
+  if(!state.people.length){
+    list.innerHTML='<div class="empty">Поки порожньо. Додайте всіх, хто підпорядкований вам безпосередньо, навіть тих, з ким ви не говорите місяцями. Особливо їх.</div>';
+  }else{
+    var html='<div class="card">';
+    state.people.forEach(function(p){
+      html+='<div class="row">'+
+        '<div><div class="nm">'+esc(p.name)+'</div>'+
+        '<div class="meta">'+esc(p.freq)+(p.last?" · остання "+fdate(p.last):" · розмови ще не було")+
+        (p.owner!=="я"?" · веде керівник":"")+'</div>'+
+        '<button class="btn-del" data-del="'+p.id+'">прибрати</button></div>'+
+        '<div class="side"><span class="chip t'+(p.type==="1"?"":p.type)+'">'+TYPES[p.type]+'</span></div>'+
+        '</div>';
+    });
+    html+='</div>';
+    list.innerHTML=html;
+    list.querySelectorAll("[data-del]").forEach(function(b){
+      b.addEventListener("click",function(){
+        state.people=state.people.filter(function(x){return x.id!==b.dataset.del;});
+        save();paintMap();paintWho();
+      });
+    });
+  }
+  var t=document.getElementById("mapTally");
+  var c={"1":0,"2":0,"3":0};
+  state.people.forEach(function(p){c[p.type]++;});
+  t.innerHTML=
+    '<div><div class="n">'+c["1"]+'</div><div class="k">НАПРЯМОК</div></div>'+
+    '<div><div class="n">'+c["2"]+'</div><div class="k">ЗВОРОТНИЙ ЗВ\'ЯЗОК</div></div>'+
+    '<div><div class="n">'+c["3"]+'</div><div class="k">РОЗВИТОК</div></div>';
+}
+
+function paintWho(){
+  var s=document.getElementById("lWho");
+  var cur=s.value;
+  s.innerHTML="";
+  if(!state.people.length){
+    var o=document.createElement("option");
+    o.textContent="спочатку заповніть розкладку";o.value="";s.appendChild(o);return;
+  }
+  state.people.forEach(function(p){
+    var o=document.createElement("option");
+    o.value=p.id;o.textContent=p.name;s.appendChild(o);
+  });
+  if(cur)s.value=cur;
+}
+
+/* ---------- журнал ---------- */
+function paintLog(){
+  var list=document.getElementById("logList");
+  if(!state.entries.length){
+    list.innerHTML='<div class="empty">Записів ще немає. Записуйте одразу після розмови, поки пам\'ятаєте, чим вона закінчилася.</div>';
+  }else{
+    var rows=state.entries.slice().sort(function(a,b){return (b.date||"").localeCompare(a.date||"");});
+    var html='<div class="card">';
+    rows.forEach(function(e){
+      html+='<div class="entry'+(e.miss?" miss":"")+'">'+
+        '<div class="bar"></div><div class="body">'+
+        '<div class="top"><span class="who">'+esc(e.who)+'</span>'+
+        '<span class="dt">'+fdate(e.date)+'</span></div>'+
+        '<div class="tags"><span class="chip ghost">'+TYPES[e.type]+'</span>'+
+        '<span class="chip '+(e.miss?"t3":"t2")+'">'+(e.miss?"не відбулася":"відбулася")+'</span></div>'+
+        (e.why?'<p class="why">'+esc(e.why)+'</p>':"")+
+        (e.raised?'<p class="why">Підняв сам: '+esc(e.raised)+'</p>':"")+
+        '<button class="btn-del" data-del="'+e.id+'">прибрати</button>'+
+        '</div></div>';
+    });
+    html+='</div>';
+    list.innerHTML=html;
+    list.querySelectorAll("[data-del]").forEach(function(b){
+      b.addEventListener("click",function(){
+        state.entries=state.entries.filter(function(x){return x.id!==b.dataset.del;});
+        save();paintLog();
+      });
+    });
+  }
+  var did=state.entries.filter(function(e){return !e.miss;}).length;
+  var miss=state.entries.length-did;
+  document.getElementById("logTally").innerHTML=
+    '<div><div class="n">'+state.entries.length+'</div><div class="k">ЗАПЛАНОВАНО</div></div>'+
+    '<div class="did"><div class="n">'+did+'</div><div class="k">ВІДБУЛОСЯ</div></div>'+
+    '<div class="miss"><div class="n">'+miss+'</div><div class="k">НЕ ВІДБУЛОСЯ</div></div>';
+}
+
+/* ---------- текст для подання ---------- */
+function asText(){
+  var L=[];
+  L.push("ЖУРНАЛ РОЗМОВ · Модуль 2");
+  if(state.who)L.push("Учасник: "+state.who);
+  L.push("");
+  L.push("РОЗКЛАДКА ("+osib(state.people.length)+")");
+  if(!state.people.length)L.push("  не заповнено");
+  state.people.forEach(function(p){
+    L.push("  "+p.name+" · "+TYPES[p.type]+" · "+p.freq+
+      (p.owner!=="я"?" · веде безпосередній керівник":"")+
+      (p.last?" · остання розмова "+fdate(p.last):" · розмови ще не було"));
+  });
+  L.push("");
+  var did=state.entries.filter(function(e){return !e.miss;}).length;
+  L.push("ЖУРНАЛ: заплановано "+state.entries.length+", відбулося "+did+
+    ", не відбулося "+(state.entries.length-did));
+  L.push("");
+  var rows=state.entries.slice().sort(function(a,b){return (a.date||"").localeCompare(b.date||"");});
+  rows.forEach(function(e){
+    L.push("  "+fdate(e.date)+" · "+e.who+" · "+TYPES[e.type]+" · "+(e.miss?"НЕ ВІДБУЛАСЯ":"відбулася"));
+    if(e.why)L.push("      що завадило: "+e.why);
+    if(e.raised)L.push("      підняв сам: "+e.raised);
+  });
+  L.push("");
+  L.push("Що я бачу за цими двома тижнями:");
+  L.push("  (допишіть один-два рядки від себе)");
+  return L.join("\n");
+}
+
+/* ---------- події ---------- */
+document.getElementById("mapForm").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  var n=document.getElementById("mName").value.trim();
+  if(!n)return;
+  state.people.push({
+    id:uid(),name:n,
+    type:document.getElementById("mType").value,
+    freq:document.getElementById("mFreq").value,
+    owner:document.getElementById("mOwner").value,
+    last:document.getElementById("mLast").value
+  });
+  document.getElementById("mName").value="";
+  document.getElementById("mLast").value="";
+  save();paintMap();paintWho();
+  document.getElementById("mName").focus();
+});
+
+function setMiss(v){
+  missMode=v;
+  document.getElementById("segDid").setAttribute("aria-pressed",v?"false":"true");
+  document.getElementById("segMiss").setAttribute("aria-pressed",v?"true":"false");
+  document.getElementById("whyWrap").hidden=!v;
+  document.getElementById("raisedWrap").hidden=v;
+}
+document.getElementById("segDid").addEventListener("click",function(){setMiss(false);});
+document.getElementById("segMiss").addEventListener("click",function(){setMiss(true);});
+
+document.getElementById("logForm").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  var sel=document.getElementById("lWho");
+  if(!sel.value){toast("Спочатку додайте людей у розкладку");return;}
+  var p=state.people.filter(function(x){return x.id===sel.value;})[0];
+  var why=document.getElementById("lWhy").value.trim();
+  if(missMode&&!why){toast("Один рядок про те, що завадило. Це і є матеріал сесії.");return;}
+  state.entries.push({
+    id:uid(),who:p?p.name:"—",
+    date:document.getElementById("lDate").value,
+    type:document.getElementById("lType").value,
+    miss:missMode,why:missMode?why:"",
+    raised:missMode?"":document.getElementById("lRaised").value.trim()
+  });
+  document.getElementById("lWhy").value="";
+  document.getElementById("lRaised").value="";
+  save();paintLog();
+  toast(missMode?"Записано. Саме такі рядки читає викладачка.":"Записано.");
+});
+
+document.getElementById("btnSave").addEventListener("click",function(){
+  var data=asText()+"\n\n"+MARK+"\n"+JSON.stringify(state);
+  var slug=translit(state.who);
+  var name=slug?("zhurnal-"+slug+".txt"):"zhurnal-rozmov.txt";
+  if(window.claude&&typeof window.claude.use==="function"){
+    window.claude.use("downloads").then(function(d){
+      if(d&&d.save){d.save({filename:name,data:data}).then(function(){toast("Файл збережено.");},
+        function(){toast("Збереження скасовано.");});}
+      else blobSave(data,name);
+    },function(){blobSave(data,name);});
+  }else blobSave(data,name);
+});
+function blobSave(data,name){
+  try{
+    var b=new Blob([data],{type:"text/plain;charset=utf-8"});
+    var u=URL.createObjectURL(b);
+    var a=document.createElement("a");
+    a.href=u;a.download=name;document.body.appendChild(a);a.click();
+    document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(u);},1500);
+    toast("Файл збережено.");
+  }catch(e){toast("Не вдалося зберегти файл. Скопіюйте журнал.");}
+}
+
+document.getElementById("btnLoad").addEventListener("click",function(){
+  document.getElementById("fileIn").click();
+});
+document.getElementById("fileIn").addEventListener("change",function(ev){
+  var f=ev.target.files&&ev.target.files[0];
+  if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var raw=String(r.result);
+      var i=raw.indexOf(MARK);
+      if(i>-1)raw=raw.slice(i+MARK.length);
+      var o=JSON.parse(raw.trim());
+      var have={},added=0;
+      state.people.forEach(function(x){have[x.id]=1;});
+      (Array.isArray(o.people)?o.people:[]).forEach(function(x){
+        if(x&&x.id&&!have[x.id]){state.people.push(x);have[x.id]=1;added++;}
+      });
+      var haveE={};
+      state.entries.forEach(function(x){haveE[x.id]=1;});
+      (Array.isArray(o.entries)?o.entries:[]).forEach(function(x){
+        if(x&&x.id&&!haveE[x.id]){state.entries.push(x);haveE[x.id]=1;added++;}
+      });
+      if(!state.who&&typeof o.who==="string")state.who=o.who;
+      document.getElementById("who").value=state.who||"";
+      save();paintMap();paintWho();paintLog();
+      toast(added?("Додано записів: "+added+". Наявні не змінені."):"Нових записів у файлі немає.");
+    }catch(e){toast("Файл не читається. Потрібен файл, збережений із цієї сторінки.");}
+  };
+  r.readAsText(f);
+  ev.target.value="";
+});
+
+var wipeArmed=false,wipeTimer=null;
+document.getElementById("btnWipe").addEventListener("click",function(){
+  var b=this;
+  if(!wipeArmed){
+    wipeArmed=true;b.textContent="Точно очистити?";b.classList.add("btn-danger");
+    clearTimeout(wipeTimer);
+    wipeTimer=setTimeout(function(){
+      wipeArmed=false;b.textContent="Очистити все";b.classList.remove("btn-danger");
+    },5000);
+    return;
+  }
+  clearTimeout(wipeTimer);wipeArmed=false;
+  b.textContent="Очистити все";b.classList.remove("btn-danger");
+  state.people=[];state.entries=[];
+  try{localStorage.removeItem(KEY);}catch(e){}
+  state.saved=null;paintStamp();paintMap();paintWho();paintLog();
+  toast("Порожньо. Можна починати.");
+});
+
+document.getElementById("who").addEventListener("input",function(){
+  state.who=this.value;save();
+});
+
+document.querySelectorAll(".tab").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".tab").forEach(function(x){x.setAttribute("aria-selected","false");});
+    document.querySelectorAll(".pane").forEach(function(x){x.classList.remove("on");});
+    b.setAttribute("aria-selected","true");
+    document.getElementById("pane-"+b.dataset.p).classList.add("on");
+    window.scrollTo(0,0);
+  });
+});
+
+/* старт */
+load();
+document.getElementById("who").value=state.who||"";
+paintStamp();paintMap();paintWho();paintLog();setMiss(false);
+var today=new Date();
+document.getElementById("lDate").value=
+  today.getFullYear()+"-"+(today.getMonth()<9?"0":"")+(today.getMonth()+1)+"-"+
+  (today.getDate()<10?"0":"")+today.getDate();
+})();
+</script>
+</body>
+</html>
